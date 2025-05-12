@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <style>
+        /* The sidebar menu */
+        .sidenav {
+        height: 100%; /* Full-height: remove this if you want "auto" height */
+        width: 160px; /* Set the width of the sidebar */
+        position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+        z-index: 1; /* Stay on top */
+        top: 0; /* Stay at the top */
+        left: 0;
+        background-color: #807c7c; /* Black */
+        overflow-x: hidden; /* Disable horizontal scroll */
+        padding-top: 20px;
+        }
+
+        /* The navigation menu links */
+        .sidenav a {
+        padding: 6px 8px 6px 16px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #818181;
+        display: block;
+        }
+
+        /* When you mouse over the navigation links, change their color */
+        .sidenav a:hover {
+        color: #f1f1f1;
+        }
+
+        /* Style page content */
+        .main {
+        margin-left: 160px; /* Same as the width of the sidebar */
+        padding: 0px 10px;
+        }
+    </style>
+
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EasyMDE demo</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+{% endblock %}
+
+{% block body %}
+    <div class="sidenav">
+        <p>file1</p>
+        <p>file2</p>
+        <details>
+            <summary>dir 1</summary>
+            <div style="margin-left: 10px;">
+                <p style="margin-left: 10px;">file3</p>
+                <details>
+                    <summary>dir 2</summary>
+                </details>
+            </div>
+
+
+        </details>
+    </div>
+
+    <div class="main">
+        <textarea id="my-text-area">
+        </textarea>
+        <script>
+          const easymde = new EasyMDE({
+            element: document.getElementById('my-text-area'),
+          });
+        </script>
+    </div>
+
+
+{% endblock %}
