@@ -2,5 +2,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('file/<path:directory>/', views.notes_view, name="notes")
+    path('root/<path:directory>/', views.notes_view, name="file_path"),
+    path('root/', views.root_view, name="root")
 ]
