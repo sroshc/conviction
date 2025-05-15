@@ -2,10 +2,17 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
+from users.models import Writer
 from .models import Directory
 from .forms import FileForm
 
 from django.http import HttpResponse, Http404
+
+def create_writer_if_not_exists(user):
+    if not hasattr(user, 'writer'):
+        dir = Directory.objects.create(name="root", is_root=True, parent=None)
+        user.writer = Writer.objects.create(root_directory=dir, user=user)
+
 
 def get_file_and_directory(user, path):
     file_path = path.split("/")
@@ -30,6 +37,8 @@ def get_file_and_directory(user, path):
 
 @login_required
 def notes_view(request, directory):
+    create_writer_if_not_exists(request.user)
+
     directory, file = get_file_and_directory(request.user, directory)
 
     if directory == None:
@@ -61,11 +70,15 @@ def notes_view(request, directory):
 
 @login_required
 def root_view(request):
+    create_writer_if_not_exists(request.user)
+
     directory = request.user.writer.root_directory
+    form = FileForm()
 
     context = {
         "directory": directory,
         "file": None,
+        "form": form
     }
 
     return render(request, "notes/file.html", context)
