@@ -4,7 +4,7 @@ from django.contrib import messages
 
 from users.models import Writer
 from .models import Directory
-from .forms import FileForm
+from .forms import FileForm, DirectoryForm
 
 from django.http import HttpResponse, Http404
 
@@ -13,6 +13,30 @@ def create_writer_if_not_exists(user):
         dir = Directory.objects.create(name="root", is_root=True, parent=None)
         user.writer = Writer.objects.create(root_directory=dir, user=user)
 
+def save_file(request, file_form, dir):
+    if file_form.is_valid():
+        file = file_form.save(commit=False)
+        file.directory = dir
+        file.save()
+        
+        messages.success(request, "Successfully saved file!")
+        return file
+    else:
+        messages.error(request, "Could not save file.")
+        return None
+
+def save_dir(request, directory_form, dir):
+    if directory_form.is_valid():
+        new_dir = directory_form.save(commit=False)
+        new_dir.directory = dir
+        new_dir.save()
+
+        messages.success(request, "Successfully saved directory!")
+        return new_dir
+    else:
+        messages.error(request, "Could not save directory.")
+        return None
+        
 
 def get_file_and_directory(user, path):
     file_path = path.split("/")
@@ -46,25 +70,17 @@ def notes_view(request, directory):
         raise Http404
     
     if request.method == "POST":
-        form = FileForm(request.POST, instance=file)
-        
-        if form.is_valid():
-            if file == None: # If it's a new file
-                file = form.save(commit=False)
-                file.directory = directory
+        file_form = FileForm(request.POST, instance=file, prefix='file')
 
-            form.save()
+        save_file(request, file_form, directory)
         
-            messages.success(request, "File saved successfully!")
-        else:
-            messages.error(request, "File was unable to be saved")
     else:
-        form = FileForm(instance=file)
+        file_form = FileForm(instance=file, prefix='file')
 
     context = {
         "directory": directory, 
         "file": file,
-        "file_form": form
+        "file_form": file_form,
     }
 
     return render(request, "notes/file.html", context)
@@ -74,22 +90,20 @@ def root_view(request):
     create_writer_if_not_exists(request.user)
 
     directory = request.user.writer.root_directory
+    file_form = FileForm()
 
     if request.method == "POST":
-        form = FileForm(request.POST)
-
-        file = form.save(commit=False)
-        file.directory = directory
-        file.save()
+        file_form = FileForm(request.POST)
+        file = save_file(request, file_form, directory)
 
         return redirect('notes_view', directory=file.name)
     else:
-        form = FileForm()
+       file_form = FileForm()
 
     context = {
         "directory": directory,
         "file": None,
-        "file_form": form
+        "file_form": file_form
     }
 
     return render(request, "notes/file.html", context)
