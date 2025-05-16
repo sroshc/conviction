@@ -80,18 +80,18 @@
 
       <form method="POST" novalidate>
         {% csrf_token %}
-        {{ form.non_field_errors }}
+        {{ file_form.non_field_errors }}
         
         <div class="block">
           {% if file %}
             <p style="display:inline">editing:</p>
           {% endif %}
-          {{ form.name.errors }}
-          {{ form.name }}
+          {{ file_form.name.errors }}
+          {{ file_form.name }}
         </div>
 
-        {{ form.content.errors }}
-        {{ form.content }}
+        {{ file_form.content.errors }}
+        {{ file_form.content }}
 
         <input type="submit" value="Save">
       </form>

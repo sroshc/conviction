@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
@@ -37,6 +37,7 @@ def get_file_and_directory(user, path):
 
 @login_required
 def notes_view(request, directory):
+    print(directory)
     create_writer_if_not_exists(request.user)
 
     directory, file = get_file_and_directory(request.user, directory)
@@ -51,8 +52,8 @@ def notes_view(request, directory):
             if file == None: # If it's a new file
                 file = form.save(commit=False)
                 file.directory = directory
-            else: # If it already exists and we are only editing content and or name
-                form.save()
+
+            form.save()
         
             messages.success(request, "File saved successfully!")
         else:
@@ -63,7 +64,7 @@ def notes_view(request, directory):
     context = {
         "directory": directory, 
         "file": file,
-        "form": form
+        "file_form": form
     }
 
     return render(request, "notes/file.html", context)
@@ -73,12 +74,22 @@ def root_view(request):
     create_writer_if_not_exists(request.user)
 
     directory = request.user.writer.root_directory
-    form = FileForm()
+
+    if request.method == "POST":
+        form = FileForm(request.POST)
+
+        file = form.save(commit=False)
+        file.directory = directory
+        file.save()
+
+        return redirect('notes_view', directory=file.name)
+    else:
+        form = FileForm()
 
     context = {
         "directory": directory,
         "file": None,
-        "form": form
+        "file_form": form
     }
 
     return render(request, "notes/file.html", context)
